@@ -1,5 +1,9 @@
 markspace_system/__pycache__
 iam_system/__pycache__
 iam_system/migrations
+flood_forecasting/__pycache__
 .venv
 .env
+flood_forecasting/data_inputs
+flood_forecasting/data_outputs
+flood_forecasting/migrations

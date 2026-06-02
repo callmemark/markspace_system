@@ -17,10 +17,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'iam_system',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist', 
+
+    'iam_system',
+    "flood_forecasting",
 ]
 
 MIDDLEWARE = [
