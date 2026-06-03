@@ -8,3 +8,4 @@ flood_forecasting/data_inputs
 flood_forecasting/data_outputs
 flood_forecasting/migrations
 staticfiles
+db.sqlite3
