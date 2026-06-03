@@ -1,14 +1,17 @@
-
-
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = 'django-insecure-mt*(_d)5!g9w4_)x6c560*c1q0-qrz5zkbk+#0tg%co89qd38*'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["13.212.1.135", "127.0.0.1", "localhost"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,15 +57,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'markspace_system.wsgi.application'
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'iamserver',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT':'3306',
+        'NAME':     os.getenv("DB_NAME"),
+        'USER':     os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASSWORD"),
+        'HOST':     os.getenv("DB_HOST"),
+        'PORT':     os.getenv("DB_PORT"),
     },
 }
 
@@ -89,6 +91,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
