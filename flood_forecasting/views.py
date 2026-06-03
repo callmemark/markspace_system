@@ -1,47 +1,38 @@
-from django.shortcuts import render
-from .flood_modelling import FloodModel
-import rasterio
-from rasterio.warp import transform
-from rasterio.crs import CRS
-
 import os
-from django.conf import settings
-from django.http import JsonResponse
+import rasterio
+import rasterio.windows
+from rasterio.crs import CRS
+from pyproj import transform
+from dotenv import load_dotenv
 from django.views import View
+from django.http import JsonResponse
 
-
-"""
-model = FloodModel(
-    dem_file     = "s3://markspace-926109361648-ap-southeast-2-an/flood_forecasting/dem.tif",
-    precip_file  = "data_inputs/storm_precip_grid.npy",
-    landuse_file = "s3://markspace-926109361648-ap-southeast-2-an/flood_forecasting/land_use.tif",
-    river_geojson_file = "data_inputs/pasig.geojson",
-    model = "HAND",
-    mask_bow = False,
-    acc_model="DINF", # D8 | MFD | DINF
-)
-"""
-
-
-
+load_dotenv()
 
 
 # --------------------------------------------------------------------------
-# Query flood data per location
+# Query flood data per location — streams GeoTIFF directly from S3
 # --------------------------------------------------------------------------
 class FloodDepthView(View):
-    """ Returns flood depth (in metres) for a given WGS84 lat/lon point.
+    """Returns flood depth (in metres) for a given WGS84 lat/lon point.
+
+    Reads the GeoTIFF directly from S3 via GDAL's /vsis3/ virtual filesystem.
+    Credentials and S3 path are loaded from .env via python-dotenv.
 
     Example: /api/flood-depth/?lat=14.5&lon=121.0
     """
-    
-    # Path to the GeoTIFF relative to project base directory
-    TIF_PATH = os.path.join(
-        settings.BASE_DIR, 'flood_forecasting', 'data_inputs', 'flood_depth.tif'
-    )
+
+    @property
+    def tif_path(self):
+        bucket = os.getenv('AWS_S3_BUCKET')
+        key    = os.getenv('AWS_S3_FLOOD_KEY')
+
+        if not bucket or not key:
+            raise EnvironmentError('AWS_S3_BUCKET or AWS_S3_FLOOD_KEY is not set in .env')
+
+        return f'/vsis3/{bucket}/{key}'
 
     def get(self, request):
-        # 1. Read and validate query parameters
         try:
             lat = float(request.GET.get('lat'))
             lon = float(request.GET.get('lon'))
@@ -50,44 +41,32 @@ class FloodDepthView(View):
                 {'error': 'Missing or invalid lat/lon parameters'}, status=400
             )
 
-        # 2. Open raster and extract value
         try:
             depth = self._get_flood_depth(lat, lon)
-            return JsonResponse({
-                'lat': lat,
-                'lon': lon,
-                'depth_m': depth
-            })
+            return JsonResponse({'lat': lat, 'lon': lon, 'depth_m': depth})
+        except EnvironmentError as e:
+            return JsonResponse({'error': str(e)}, status=500)
         except ValueError as e:
             return JsonResponse({'error': str(e)}, status=404)
         except Exception as e:
-            # Log the real error in production
-            return JsonResponse({'error': 'Internal server error'}, status=500)
-
+            return JsonResponse({'error': f'Internal server error: {e}'}, status=500)
 
     def _get_flood_depth(self, lat, lon):
-        """ Core logic to query the GeoTIFF.
-        Returns float depth or None if the pixel is nodata.
-        Raises ValueError if the point is outside the raster extent.
-        """
-        with rasterio.open(self.TIF_PATH) as src:
-            # Transform WGS84 (EPSG:4326) to raster CRS if needed
+        """Streams only the pixel block needed from S3 — not the full file."""
+        with rasterio.open(self.tif_path) as src:
             if src.crs != CRS.from_epsg(4326):
-                # Note: transform returns (x, y) tuples for each coordinate
                 xs, ys = transform(CRS.from_epsg(4326), src.crs, [lon], [lat])
                 x, y = xs[0], ys[0]
             else:
                 x, y = lon, lat
 
-            # Convert map coordinates to pixel row/col
             row, col = src.index(x, y)
 
-            # Check bounds
             if row < 0 or row >= src.height or col < 0 or col >= src.width:
                 raise ValueError('Point is outside raster extent')
 
-            # Read the value from band 1
-            value = src.read(1)[row, col]
+            window = rasterio.windows.Window(col, row, 1, 1)
+            value = src.read(1, window=window)[0, 0]
 
             if value == src.nodata:
                 return None
