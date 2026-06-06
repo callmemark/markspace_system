@@ -62,6 +62,7 @@ def convert_to_cog(input_path, output_path):
 
 
 FLOOD_DEPTH_PATH = ROOT_PATH / "flood_model_output" / "flood_depth.tif"
-FLOOD_DEPTH_COG = ROOT_PATH / "flood_model_output" / "flood_depth_cog.tif"
+#FLOOD_DEPTH_COG = ROOT_PATH / "flood_model_output" / "flood_depth_cog.tif"
+FLOOD_DEPTH_COG  = Path("/var/www/media/cogs/flood_depth_cog.tif")
 
 convert_to_cog(FLOOD_DEPTH_PATH, FLOOD_DEPTH_COG)
