@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import rasterio
 from rasterio.shutil import copy
+import time
 
 
 load_dotenv()
@@ -14,7 +15,23 @@ ROOT_PATH = Path(__file__).parent
 
 # --- CREATE PRECIPITATION MAP ----------------------------------------
 MAP_MAKER = PrecipitaionMapper()
-MAP_MAKER.generate_map()
+
+MAX_RETRIES = 3
+for attempt in range(1, MAX_RETRIES + 1):
+    try:
+        print(f"Attempt {attempt}/{MAX_RETRIES}: generating precipitation map…")
+        MAP_MAKER.generate_map()
+        print("Precipitation map generated successfully.")
+        break
+    except Exception as e:
+        print(f"Attempt {attempt} failed: {e}")
+        if attempt < MAX_RETRIES:
+            wait = attempt * 30  # 30s, 60s
+            print(f"Retrying in {wait}s…")
+            time.sleep(wait)
+        else:
+            print("All attempts failed. Aborting.")
+            raise
 
 
 
