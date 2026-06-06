@@ -45,20 +45,6 @@ class TokenRefreshView(TokenRefreshView):
     """
 
 
-class UserProfileView(generics.RetrieveUpdateAPIView):
-    """
-    GET /api/auth/me/   – get own profile
-    PATCH /api/auth/me/ – update display_name (etc.)
-    Requires valid JWT.
-    """
-    serializer_class = AccountSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_object(self):
-        return self.request.user
-    
-
-
 
 # ----------------------------------------------------------------------
 # PASSWORD RESET
@@ -99,3 +85,21 @@ class PasswordResetConfirmView(generics.GenericAPIView):
             {"detail": "Password has been reset successfully."},
             status=status.HTTP_200_OK
         )
+    
+
+
+
+# ----------------------------------------------------------------------
+# Profile Management Views
+# ----------------------------------------------------------------------
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    """
+    GET /api/auth/me/   – get own profile
+    PATCH /api/auth/me/ – update display_name (etc.)
+    Requires valid JWT.
+    """
+    serializer_class = AccountSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user

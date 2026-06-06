@@ -9,3 +9,6 @@ flood_forecasting/data_outputs
 flood_forecasting/migrations
 staticfiles
 db.sqlite3
+flood_forecasting/.flood_cache
+flood_forecasting/flood_model_output
+flood_forecasting/inputs

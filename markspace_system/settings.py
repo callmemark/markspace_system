@@ -25,7 +25,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist', 
 
     'iam_system',
-    "flood_forecasting",
+    'flood_forecasting',
+    'weather_forecasting'
 ]
 
 MIDDLEWARE = [
