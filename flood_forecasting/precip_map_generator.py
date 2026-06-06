@@ -69,3 +69,5 @@ class PrecipitaionMapper():
         plt.ylabel('Row index')
         plt.tight_layout()
         plt.show()
+
+

@@ -1,11 +1,14 @@
 import os
 import rasterio
 import rasterio.windows
+import numpy as np
+
 from rasterio.crs import CRS
 from pyproj import transform
 from dotenv import load_dotenv
 from django.views import View
 from django.http import JsonResponse
+
 
 load_dotenv()
 

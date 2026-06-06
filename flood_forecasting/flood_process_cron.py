@@ -3,31 +3,33 @@ from flood_modelling import FloodModel
 from dotenv import load_dotenv
 import os
 from pathlib import Path
-
+import rasterio
+from rasterio.shutil import copy
 
 
 load_dotenv()
+ROOT_PATH = Path(__file__).parent
 
 
+
+# --- CREATE PRECIPITATION MAP ----------------------------------------
+MAP_MAKER = PrecipitaionMapper()
+MAP_MAKER.generate_map()
+
+
+
+# --- HELPER FUNCTION -------------------------------------------------
 def tif_path(file_key: str):
     bucket = os.getenv('AWS_S3_BUCKET')
     key    = os.getenv(file_key)
 
     if not bucket or not key:
         raise EnvironmentError('AWS_S3_BUCKET or AWS_S3_FLOOD_KEY is not set in .env')
-
     return f'/vsis3/{bucket}/{key}'
 
 
-ROOT_PATH = Path(__file__).parent
-MAP_MAKER = PrecipitaionMapper()
-MAP_MAKER.generate_map()
 
-
-def get_project_root():
-    return Path(__file__).parent.parent
-
-
+# --- RUN FLOOD MODELLING CALCULATIONS --------------------------------
 FLOOD_MODEL = FloodModel(
     dem_file        = tif_path("AWS_S3_DEM_KEY"),
     precip_file     = ROOT_PATH / "inputs/precip_grid.npy",
@@ -41,5 +43,25 @@ FLOOD_MODEL = FloodModel(
 
 FLOOD_MODEL.output_folder_path = ROOT_PATH / "flood_model_output"
 FLOOD_MODEL.save_outputs = True
-
 FLOOD_MODEL.run()
+
+
+
+# --- SAVE TO CLOUD OPTMIZE GeoTiff -----------------------------------
+def convert_to_cog(input_path, output_path):
+    with rasterio.open(input_path) as src:
+        profile = src.profile.copy()
+        profile.update(
+            driver='COG',
+            compress='deflate',          
+            predictor=2,                 
+            blocksize=256,               
+            overview_resampling='nearest',  
+        )
+        copy(src, output_path, **profile)
+
+
+FLOOD_DEPTH_PATH = ROOT_PATH / "flood_model_output" / "flood_depth.tif"
+FLOOD_DEPTH_COG = ROOT_PATH / "flood_model_output" / "flood_depth_cog.tif"
+
+convert_to_cog(FLOOD_DEPTH_PATH, FLOOD_DEPTH_COG)
