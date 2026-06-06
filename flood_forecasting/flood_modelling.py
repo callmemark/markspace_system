@@ -508,7 +508,7 @@ class FloodModel:
             self.save_tif()
             self.save_flood_depth_tif()
             self.save_hand_tif() if self.model == "HAND" else self.save_twi_tif()
-            self.save_flood_map()
+            #self.save_flood_map()
 
         if self.show_plots:
             if self.landuse_file:
