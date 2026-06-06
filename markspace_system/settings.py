@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ["47.128.71.38", "127.0.0.1", "localhost", 'iammark.space', 'www.iammark.space', 'api.iammark.space']
 
 INSTALLED_APPS = [
@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist', 
 
+    'homepage',
     'iam_system',
     'flood_forecasting',
     'weather_forecasting'
