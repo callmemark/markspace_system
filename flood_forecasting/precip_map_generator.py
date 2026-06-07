@@ -5,11 +5,13 @@ import xarray as xr
 import dynamical_catalog
 import matplotlib.pyplot as plt
 from pathlib import Path
-
+import rasterio
+from rasterio.transform import from_origin
 
 
 class PrecipitaionMapper():
     def __init__(self, output_path: str = "inputs/precip_grid.npy"):
+        self.ROOT_PATH = Path(__file__).parent
         self.BBOX = (120.882568, 14.413400, 121.294556, 14.807413)
         self.output_path = output_path
         self.DEM_SHAPE = (1418, 1483)
@@ -56,6 +58,40 @@ class PrecipitaionMapper():
         np.save(str(output_path), precip_grid)
         print(f"Saved final precipitation grid to {self.output_path}, shape {precip_grid.shape}")
         print(f"Precipitation range: {precip_grid.min():.2f} – {precip_grid.max():.2f} mm")
+
+
+    def save_geotiff(self, precip_grid=None, tiff_path=None):
+        if precip_grid is None:
+            print(f"Loading grid from {self.output_path} ...")
+            precip_grid = np.load(self.ROOT_PATH / self.output_path)
+
+        if tiff_path is None:
+            tiff_path = self.output_path.replace('.npy', '.tif')
+
+        tiff_path = self.ROOT_PATH / tiff_path
+
+        lon_min, lat_min, lon_max, lat_max = self.BBOX
+        height, width = self.DEM_SHAPE
+
+        pixel_width = (lon_max - lon_min) / width
+        pixel_height = (lat_max - lat_min) / height
+        transform = from_origin(lon_min, lat_max, pixel_width, pixel_height)
+
+        with rasterio.open(
+            tiff_path,
+            'w',
+            driver='GTiff',
+            height=height,
+            width=width,
+            count=1,
+            dtype=precip_grid.dtype,
+            crs='EPSG:4326',
+            transform=transform,
+        ) as dst:
+            dst.write(precip_grid, 1)
+
+        print(f"Saved GeoTIFF to {tiff_path}")
+        print(f"Grid shape: {precip_grid.shape}, CRS: EPSG:4326")
 
     
     def plot_map(self):

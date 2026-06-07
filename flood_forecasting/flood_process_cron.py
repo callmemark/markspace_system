@@ -15,13 +15,12 @@ ROOT_PATH = Path(__file__).parent
 
 # --- CREATE PRECIPITATION MAP ----------------------------------------
 MAP_MAKER = PrecipitaionMapper()
-
 MAX_RETRIES = 3
 for attempt in range(1, MAX_RETRIES + 1):
     try:
         print(f"Attempt {attempt}/{MAX_RETRIES}: generating precipitation map…")
         MAP_MAKER.generate_map()
-        print("Precipitation map generated successfully.")
+        MAP_MAKER.save_geotiff(tiff_path="flood_model_output/precip_grid.tif")
         break
     except Exception as e:
         print(f"Attempt {attempt} failed: {e}")
@@ -79,7 +78,13 @@ def convert_to_cog(input_path, output_path):
 
 
 FLOOD_DEPTH_PATH = ROOT_PATH / "flood_model_output" / "flood_depth.tif"
+PRECIPITATION_PATH = ROOT_PATH / "flood_model_output" / "precip_grid.tif"
+
 #FLOOD_DEPTH_COG = ROOT_PATH / "flood_model_output" / "flood_depth_cog.tif"
+#PRECIPITATION_COG = ROOT_PATH / "flood_model_output" / "precipitation_cog.tif"
+
 FLOOD_DEPTH_COG  = Path("/var/www/media/cogs/flood_depth_cog.tif")
+PRECIPITATION_COG  = Path("/var/www/media/cogs/precipitation_cog.tif")
 
 convert_to_cog(FLOOD_DEPTH_PATH, FLOOD_DEPTH_COG)
+convert_to_cog(PRECIPITATION_PATH, PRECIPITATION_COG)
