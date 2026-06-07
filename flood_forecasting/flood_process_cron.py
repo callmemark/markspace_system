@@ -70,7 +70,7 @@ def convert_to_cog(input_path, output_path):
         profile.update(
             driver='COG',
             compress='deflate',          
-            predictor=2,                 
+            predictor=3,                 
             blocksize=256,               
             overview_resampling='nearest',  
         )
