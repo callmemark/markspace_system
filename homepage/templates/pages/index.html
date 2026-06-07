@@ -7,7 +7,9 @@
 {% block extra_head %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&family=Syne:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/index.css' %}" />
 
 
@@ -23,243 +25,227 @@
 <!-- Star canvas -->
 <canvas id="star-canvas"></canvas>
 
-<!-- Navigation -->
-<nav id="main-nav">
-  <a href="#" class="nav-logo">MJV // iammark.space</a>
-  <ul class="nav-links">
-    <li><a href="#skills">Stack</a></li>
-    <li><a href="#experience">Log</a></li>
-    <li><a href="#approach">Approach</a></li>
-    <li><a href="mailto:markjohnvelmonte@gmail.com">Contact</a></li>
-  </ul>
-</nav>
+
 
 <!-- ─── HERO ─── -->
 <div class="site-wrap" style="position:relative;">
-  <section class="hero">
-    <div class="hero-grid">
-      <!-- Left -->
-      <div>
-        <div class="hero-eyebrow">BS Astronomy · Space Science Technology</div>
-        <h1 class="hero-name">Mark John<br>Velmonte</h1>
-        <p class="hero-descriptor">
-          Full‑stack developer &amp; 3D artist<br>
-          <span>Django · Python · AWS · GIS</span><br>
-          Building systems from the ground up —<br>
-          <span>Plan → Design → Ship → Orbit</span>
-        </p>
-        <div class="hero-cta">
-          <a href="mailto:markjohnvelmonte@gmail.com" class="btn-primary">Get in touch →</a>
-          <a href="#experience" class="btn-ghost">View Log</a>
+    <section class="hero">
+        <div class="hero-grid">
+        <!-- Left -->
+        <div>
+            <div class="hero-eyebrow">BS Astronomy · Space Science Technology</div>
+            <h1 class="hero-name">Mark John<br>Velmonte</h1>
+            <p class="hero-descriptor">
+            Full‑stack developer &amp; 3D artist<br>
+            <span>Django · Python · AWS · GIS</span><br>
+            Building systems from the ground up —<br>
+            </p>
+            <div class="hero-cta">
+            <a href="mailto:markjohnvelmonte@gmail.com" class="btn-primary">Get in touch →</a>
+            <a href="#experience" class="btn-ghost">View Log</a>
+            </div>
         </div>
-      </div>
 
-      <!-- Right: orbital orrery -->
-      <div class="hero-visual">
-        <div class="orbit-container">
-          <div class="orbit-ring"><div class="orbit-dot"></div></div>
-          <div class="orbit-ring"><div class="orbit-dot"></div></div>
-          <div class="orbit-ring"><div class="orbit-dot"></div></div>
-          <div class="orbit-center">
-            <div class="orbit-center-dot"></div>
-            <div class="orbit-center-label">iammark.space</div>
-          </div>
-          <div class="coords-block top-right">
-            <span>14°35′17″N</span>
-            121°00′20″E<br>Manila, PH
-          </div>
-          <div class="coords-block bottom-left">
-            <span>RA 14h 29m</span>
-            Dec +3°7′<br>J2000.0
-          </div>
+        <!-- Right: orbital orrery -->
+        <div class="hero-visual">
+            <div class="orbit-container">
+            <div class="orbit-ring"><div class="orbit-dot"></div></div>
+            <div class="orbit-ring"><div class="orbit-dot"></div></div>
+            <div class="orbit-ring"><div class="orbit-dot"></div></div>
+            <div class="orbit-center">
+                <div class="orbit-center-dot"></div>
+                <div class="orbit-center-label">iammark.space</div>
+            </div>
+            <div class="coords-block top-right">
+                <span>14°35′17″N</span>
+                121°00′20″E<br>Manila, PH
+            </div>
+            <div class="coords-block bottom-left">
+                <span>RA 14h 29m</span>
+                Dec +3°7′<br>J2000.0
+            </div>
+            </div>
         </div>
-      </div>
-    </div>
+        </div>
 
-    <!-- Scroll nudge -->
-    <div class="scroll-indicator">
-      <span>Scroll</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
+        <!-- Scroll nudge -->
+        <div class="scroll-indicator">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+        </div>
+    </section>
 </div>
 
 <!-- ─── PROCESS MARQUEE ─── -->
 <div class="site-wrap">
-  <div class="marquee-wrap">
-    <!-- Two copies for seamless loop -->
-    <div class="marquee-track" id="marquee-track">
-      <div class="marquee-item">Plan <span>·</span></div>
-      <div class="marquee-item">Design <span>·</span></div>
-      <div class="marquee-item">Mock Up <span>·</span></div>
-      <div class="marquee-item">Develop <span>·</span></div>
-      <div class="marquee-item">Test <span>·</span></div>
-      <div class="marquee-item">Deploy <span>·</span></div>
-      <div class="marquee-item">Maintain <span>·</span></div>
-      <div class="marquee-item">Plan <span>·</span></div>
-      <div class="marquee-item">Design <span>·</span></div>
-      <div class="marquee-item">Mock Up <span>·</span></div>
-      <div class="marquee-item">Develop <span>·</span></div>
-      <div class="marquee-item">Test <span>·</span></div>
-      <div class="marquee-item">Deploy <span>·</span></div>
-      <div class="marquee-item">Maintain <span>·</span></div>
+    <div class="marquee-wrap">
+        <!-- Two copies for seamless loop -->
+        <div class="marquee-track" id="marquee-track">
+            <div class="marquee-item">Plan <span>·</span></div>
+            <div class="marquee-item">Design <span>·</span></div>
+            <div class="marquee-item">Mock Up <span>·</span></div>
+            <div class="marquee-item">Develop <span>·</span></div>
+            <div class="marquee-item">Test <span>·</span></div>
+            <div class="marquee-item">Deploy <span>·</span></div>
+            <div class="marquee-item">Maintain <span>·</span></div>
+            <div class="marquee-item">Plan <span>·</span></div>
+            <div class="marquee-item">Design <span>·</span></div>
+            <div class="marquee-item">Mock Up <span>·</span></div>
+            <div class="marquee-item">Develop <span>·</span></div>
+            <div class="marquee-item">Test <span>·</span></div>
+            <div class="marquee-item">Deploy <span>·</span></div>
+            <div class="marquee-item">Maintain <span>·</span></div>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- ─── SKILLS ─── -->
 <div class="site-wrap">
-  <section id="skills">
-    <div class="section-header">
-      <span class="section-tag">Technical Stack</span>
-      <div class="section-line"></div>
-      <span class="section-num">01</span>
-    </div>
+    <section id="skills">
+        <div class="section-header">
+            <span class="section-tag">Technical Stack</span>
+            <div class="section-line"></div>
+            <span class="section-num">01</span>
+        </div>
 
-    <div class="skills-grid">
-      <div class="skill-card">
-        <div class="skill-card-tag">Core Languages</div>
-        <h3>Syntax & Scripts</h3>
-        <p>JavaScript · Python · GDScript<br>CSS · C++</p>
-      </div>
-      <div class="skill-card">
-        <div class="skill-card-tag">Frameworks & Infra</div>
-        <h3>Architecture</h3>
-        <p>Django · Laravel · AWS<br>React JS · Angular · SQL</p>
-      </div>
-      <div class="skill-card">
-        <div class="skill-card-tag">Workflow & Tools</div>
-        <h3>Orbit & Iterate</h3>
-        <p>Jira · Figma · Git<br>CI/CD · QGIS · GDAL</p>
-      </div>
-      <div class="skill-card">
-        <div class="skill-card-tag">3D & Design</div>
-        <h3>Form & Space</h3>
-        <p>Blender (hard surface)<br>Python tools · Asset pipelines</p>
-      </div>
-    </div>
-  </section>
+        <div class="skills-grid">
+            <div class="skill-card">
+                <div class="skill-card-tag">Core Languages</div>
+                <h3>Syntax & Scripts</h3>
+                <p>JavaScript · Python · GDScript<br>HTML · CSS · C++</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-card-tag">Frameworks & Infra</div>
+                <h3>Architecture</h3>
+                <p>Django · Laravel · AWS<br>React JS · Angular · SQL</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-card-tag">Workflow & Tools</div>
+                <h3>Orbit & Iterate</h3>
+                <p>Jira · Figma · Git<br>CI/CD · QGIS</p>
+            </div>
+            <div class="skill-card">
+                <div class="skill-card-tag">3D, Design, & Games</div>
+                <h3>Form & Space</h3>
+                <p>Blender (hard surface)<br>Python tools · Asset pipelines · Godot Engine</p>
+            </div>
+        </div>
+
+        <section id="hot-take-skill">
+            <div class="skill-card">
+                <div class="skill-card-tag">Artificial Inteligence - A hot take</div>
+                <h3>Tools of the future</h3>
+                <p>
+                    AI is a good tool, but not a good developer. However, simply denying AI doesn't make us good developers either. AI is useful for automating and speeding up processes, but I believe a human developer in charge remains the most important element. I use LLMs like <span class="claude-keyword">Claude</span> and <span class="gemini-keyword">Gemini</span> as tools to generate boilerplate functions and classes. Yet it's common to see codebases today where developers simply paste whatever AI produces as long as it works (I am also Guilty of this), which leads to a much more time-consuming review process, since most AI-generated codebases contain repeated code. The balance of human intelligence and artificial intelligence is still the best combination.
+                </p>
+            </div>
+        </section>
+    </section>
 </div>
 
 <!-- ─── ASTRONOMY STATS BANNER ─── -->
 <div class="site-wrap">
-  <div class="astronomy-banner">
-    <div class="astro-stat">
-      <div class="astro-stat-value">4+</div>
-      <div class="astro-stat-label">Years in orbit</div>
+    <div class="astronomy-banner">
+        <div class="astro-stat">
+            <div class="astro-stat-value">3+ yrs</div>
+            <div class="astro-stat-label">Professional Experience</div>
+        </div>
+        <div class="astro-divider"></div>
+            <div class="astro-stat">
+            <div class="astro-stat-value">BS Astro</div>
+            <div class="astro-stat-label">Space Science Technology</div>
+        </div>
+        <div class="astro-divider"></div>
+            <div class="astro-stat">
+            <div class="astro-stat-value">∞</div>
+            <div class="astro-stat-label">Problems solved</div>
+        </div>
     </div>
-    <div class="astro-divider"></div>
-    <div class="astro-stat">
-      <div class="astro-stat-value">BS Astro</div>
-      <div class="astro-stat-label">Space Science Technology</div>
-    </div>
-    <div class="astro-divider"></div>
-    <div class="astro-stat">
-      <div class="astro-stat-value">∞</div>
-      <div class="astro-stat-label">Problems solved</div>
-    </div>
-  </div>
 </div>
 
 <!-- ─── EXPERIENCE ─── -->
 <div class="site-wrap">
-  <section id="experience">
-    <div class="section-header">
-      <span class="section-tag">Mission Log</span>
-      <div class="section-line"></div>
-      <span class="section-num">02</span>
-    </div>
+    <section id="experience">
+        <div class="section-header">
+            <span class="section-tag">Mission Log</span>
+            <div class="section-line"></div>
+            <span class="section-num">02</span>
+        </div>
 
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-date">2022 – Present</div>
-        <div class="timeline-title">Full‑Stack Developer</div>
-        <p class="timeline-body">
-          Freelance &amp; agency work. Architecting Django and Laravel back‑ends,
-          designing SQL schemas, and deploying on AWS. Deep collaboration through
-          Jira and Figma. Building GIS-based flood forecasting applications with
-          GeoTIFF and GPM IMERG precipitation data.
-        </p>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-date">2020 – 2022</div>
-        <div class="timeline-title">3D Artist & Pipeline Scripter</div>
-        <p class="timeline-body">
-          Produced hard‑surface models for indie games and arch‑viz.
-          Built Blender add‑ons with Python and in‑engine tools with GDScript.
-          Developed browser-based strategy games set in Metro Manila.
-        </p>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-date">2016 – 2020</div>
-        <div class="timeline-title">BS Astronomy — Space Science Technology</div>
-        <p class="timeline-body">
-          Studied stellar physics, observational astronomy, and space science systems.
-          Built a foundation for data-driven thinking, precision engineering,
-          and finding signal in noise — skills that translate directly
-          into software architecture.
-        </p>
-      </div>
-    </div>
-  </section>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-date">2025 – Present</div>
+                <div class="timeline-title">Software Engineer</div>
+                <p class="timeline-body">
+                    Develop Applications, APIs, and Manage athmospheric inlcuding geospatial data for ealy warning systems.
+                </p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-date">2023 – 2025</div>
+                <div class="timeline-title">Full‑Stack Application Developer</div>
+                <p class="timeline-body">
+                    A corporate Job, Developed and maintain web and mobile applications for international clients using with tools 
+                    like Laravel and React Native 
+                </p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-date">2019 – 2023</div>
+                <div class="timeline-title">BS Astronomy — Space Science Technology</div>
+                <p class="timeline-body">
+                    Studied stellar physics, observational astronomy, and space science systems.
+                    Built a foundation for data-driven thinking, precision engineering,
+                    and finding signal in noise — skills that translate directly
+                    into software architecture.
+                </p>
+            </div>
+        </div>
+    </section>
 </div>
 
 <!-- ─── APPROACH ─── -->
 <div class="site-wrap">
-  <section id="approach">
-    <div class="section-header">
-      <span class="section-tag">Approach</span>
-      <div class="section-line"></div>
-      <span class="section-num">03</span>
-    </div>
+    <section id="approach">
+        <div class="section-header">
+        <span class="section-tag">Approach</span>
+        <div class="section-line"></div>
+        <span class="section-num">03</span>
+        </div>
 
-    <div class="approach-grid">
-      <div class="approach-item">
-        <div class="approach-number">01 —</div>
-        <h5>Zero noise</h5>
-        <p>I delete as much as I write. Code and geometry should feel inevitable,
-          not decorated. Like a clean spectrum — only signal.</p>
-      </div>
-      <div class="approach-item">
-        <div class="approach-number">02 —</div>
-        <h5>Tool‑maker</h5>
-        <p>I automate the boring. Scripts, shortcuts, templates —
-          every repetition is a bug. Astronomical data taught me
-          to build pipelines, not just queries.</p>
-      </div>
-      <div class="approach-item">
-        <div class="approach-number">03 —</div>
-        <h5>Visual logic</h5>
-        <p>Figma and Blender taught me that layout, balance,
-          and structure are universal — whether in pixels, polygons,
-          or parsecs.</p>
-      </div>
-      <div class="approach-item">
-        <div class="approach-number">04 —</div>
-        <h5>Ship early</h5>
-        <p>Minimal viable products, then iterate. Perfection is a
-          moving target — like trying to map a galaxy
-          one star at a time.</p>
-      </div>
-    </div>
-  </section>
+        <div class="approach-grid">
+        <div class="approach-item">
+            <div class="approach-number">01 —</div>
+            <h5>Zero noise</h5>
+            <p>I delete as much as I write. Code and geometry should feel inevitable,
+            not decorated. Like a clean spectrum — only signal.</p>
+        </div>
+        <div class="approach-item">
+            <div class="approach-number">02 —</div>
+            <h5>Tool‑maker</h5>
+            <p>I automate the boring. Scripts, shortcuts, templates —
+            every repetition is a bug. Astronomical data taught me
+            to build pipelines, not just queries.</p>
+        </div>
+        <div class="approach-item">
+            <div class="approach-number">03 —</div>
+            <h5>Visual logic</h5>
+            <p>Figma and Blender taught me that layout, balance,
+            and structure are universal — whether in pixels, polygons,
+            or parsecs.</p>
+        </div>
+        <div class="approach-item">
+            <div class="approach-number">04 —</div>
+            <h5>Ship early</h5>
+            <p>Minimal viable products, then iterate. Perfection is a
+            moving target — like trying to map a galaxy
+            one star at a time.</p>
+        </div>
+        </div>
+    </section>
 </div>
 
-<!-- ─── FOOTER ─── -->
-<div class="site-wrap">
-  <footer>
-    <p>© 2026 Mark John Velmonte</p>
-    <div class="footer-coords">
-      14°35′N · 121°00′E · Manila, PH<br>
-      <span style="color: var(--accent);">iammark.space</span>
-    </div>
-    <a href="mailto:markjohnvelmonte@gmail.com">markjohnvelmonte@gmail.com →</a>
-  </footer>
-</div>
 
-<!-- ─── SCRIPTS ─── -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+
 
 <script src="{% static 'js/index.js' %}"></script>
 {% endblock %}

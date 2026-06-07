@@ -2,7 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --void: #04070f;
+    --void: #0b142c;
     --void-mid: #080d1a;
     --void-surface: #0d1425;
     --star-bright: #e8f0ff;
@@ -13,11 +13,14 @@
     --line: rgba(126, 174, 255, 0.15);
     --text-primary: #dce8ff;
     --text-secondary: #7a91b8;
-    --text-muted: #3d4f6e;
+    --text-muted: #627fb1;
     --serif: 'Instrument Serif', Georgia, serif;
     --mono: 'DM Mono', monospace;
     --sans: 'Syne', system-ui, sans-serif;
+    --space: 'Space Mono', monospace,
 }
+
+
 
 html { scroll-behavior: smooth; }
 
@@ -149,10 +152,10 @@ nav.scrolled {
 }
 
 .hero-name {
-    font-family: var(--serif);
+    font-family: var(--space);
     font-size: clamp(3rem, 7vw, 5.5rem);
     font-weight: 400;
-    font-style: italic;
+    font-style: normal;
     letter-spacing: -0.02em;
     line-height: 1.05;
     color: var(--star-bright);
@@ -378,7 +381,7 @@ section { padding: 7rem 0; }
     border-radius: 50%;
 }
 .skill-card h3 {
-    font-family: var(--serif);
+    font-family: var(--space);
     font-size: 1.3rem;
     font-weight: 400;
     font-style: italic;
@@ -432,7 +435,7 @@ section { padding: 7rem 0; }
     margin-bottom: 0.4rem;
 }
 .timeline-title {
-    font-family: var(--serif);
+    font-family: var(--space);
     font-size: 1.4rem;
     font-style: italic;
     color: var(--star-bright);
@@ -466,7 +469,7 @@ section { padding: 7rem 0; }
     margin-bottom: 1rem;
 }
 .approach-item h5 {
-    font-family: var(--serif);
+    font-family: var(--space);
     font-size: 1.15rem;
     font-style: italic;
     font-weight: 400;
@@ -494,7 +497,7 @@ section { padding: 7rem 0; }
     text-align: center;
 }
 .astro-stat-value {
-    font-family: var(--serif);
+    font-family: var(--space);
     font-size: 2.5rem;
     font-style: italic;
     color: var(--star-bright);
@@ -630,4 +633,18 @@ footer a:hover { color: var(--accent); }
     footer { flex-direction: column; gap: 0.75rem; text-align: center; }
     .process-bar { flex-wrap: wrap; }
     .process-step { flex: 0 0 33.33%; border-bottom: 1px solid var(--line); }
+}
+
+.claude-keyword{
+    color: rgb(255, 124, 59);
+    font-weight: bold;
+}
+
+.gemini-keyword{
+    color: #ecc31c;
+    font-weight: bold;
+}
+
+#hot-take-skill{
+    border: 1px solid var(--line);
 }
