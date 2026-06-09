@@ -64,6 +64,20 @@ class FloodModel:
         self.dem_ps  = None
         self.fdir_ps = None
         self.dirmap  = (64, 128, 1, 2, 4, 8, 16, 32)
+        self.dir_offsets = {
+            64:  (-1, -1),  # NW
+            128: (-1,  0),  # N
+            1:   (-1,  1),  # NE
+            2:   ( 0,  1),  # E
+            4:   ( 1,  1),  # SE
+            8:   ( 1,  0),  # S
+            16:  ( 1, -1),  # SW
+            32:  ( 0, -1),  # W
+            0:   None,      # boundary / no data
+            -1:  None,      # unresolved flat
+            -2:  None,      # pit
+        }
+
 
         self.INFIL_RATE = {
             10: 25.0, 20: 18.0, 30: 15.0, 40: 12.0,
@@ -238,6 +252,41 @@ class FloodModel:
         delta = self.dem_filled - dem_raw_finite
         print(f"Depression fill — max raised: {delta.max():.2f} m, cells modified: {(delta > 1e-6).sum():,}")
 
+
+    def preprocess_dem_urban(self, spike_threshold=5.0, window=3):
+        """
+        Remove single-pixel spikes that act as artificial dams.
+        
+        spike_threshold: if a pixel is this many metres higher than
+                        its neighbourhood median, it's a spike.
+        window: neighbourhood size (3 = 3×3 = 8 neighbours)
+        """
+        from scipy.ndimage import median_filter, minimum_filter
+
+        dem = self.dem_raw.copy()
+
+        # Neighbourhood median
+        dem_median = median_filter(dem, size=window)
+
+        # Spike mask: pixel is much higher than surroundings
+        spike_mask = (dem - dem_median) > spike_threshold
+
+        # Replace spikes with local median
+        dem[spike_mask] = dem_median[spike_mask]
+
+        n_spikes = spike_mask.sum()
+        print(f"Spike removal — {n_spikes:,} spike pixels fixed "
+            f"(threshold={spike_threshold}m, window={window}×{window})")
+
+        # Optional: also fill isolated low pits (negative spikes)
+        dem_min = minimum_filter(dem, size=window)
+        pit_mask = (dem_median - dem) > spike_threshold
+        dem[pit_mask] = dem_median[pit_mask]
+        print(f"Pit removal   — {pit_mask.sum():,} pit pixels fixed")
+
+        self.dem_raw = dem
+
+
     # ------------------------------------------------------------------
     #  Flow Direction & Accumulation
     # ------------------------------------------------------------------
@@ -320,6 +369,7 @@ class FloodModel:
         self.flood_depth = np.clip(twi / (twi_max + 1e-6) * self.depth_cap, 0, self.depth_cap)
         print(f"Flood depth   — TWI range: {twi.min():.2f}–{twi.max():.2f}, 99th pct depth: {np.percentile(self.flood_depth, 99):.2f} m")
 
+
     def hand_estimate_flood_depth(self, channel_threshold=None, stage_scale=500.0):
         ROUTING_MAP = {"D8": "d8", "MFD": "mfd", "DINF": "dinf"}
         routing     = ROUTING_MAP.get(self.acc_model, "d8")
@@ -349,9 +399,18 @@ class FloodModel:
         self.hand = self._cached(f"hand_{self.acc_model}", _compute_hand)
         print(f"HAND          — range: {self.hand.min():.2f}–{self.hand.max():.2f} m, mean: {self.hand.mean():.2f} m")
 
-        acc_stage      = self.acc_specific if hasattr(self, 'acc_specific') and self.acc_specific is not None else self.acc
-        raw_stage_m    = (acc_stage / 1000.0) * (stage_scale / 100.0)
-        self.flood_depth = np.clip(np.clip(raw_stage_m - self.hand, 0, None), 0, self.depth_cap)
+        # --- Flood depth via log-scale HAND comparison ---
+        acc_stage     = self.acc_specific if hasattr(self, 'acc_specific') and self.acc_specific is not None else self.acc
+        acc_stage_log = np.log1p(acc_stage / stage_scale)
+        hand_log      = np.log1p(np.where(np.isfinite(self.hand), self.hand, 0))
+
+        flood = np.clip(acc_stage_log - hand_log, 0, None)
+
+        valid_flood   = flood[flood > 0]
+        flood_99      = np.percentile(valid_flood, 99) if valid_flood.size > 0 else 1.0
+        self.flood_depth = np.clip(
+            flood / (flood_99 + 1e-6) * self.depth_cap, 0, self.depth_cap
+        )
 
         flooded = (self.flood_depth > 0).sum()
         print(
@@ -359,6 +418,7 @@ class FloodModel:
             f"max: {self.flood_depth.max():.2f} m, "
             f"mean(flooded): {self.flood_depth[self.flood_depth > 0].mean():.2f} m"
         )
+
 
     def smooth_flood_depth(self, method="median", size=5, sigma=1.0):
         if method == "median":
@@ -467,12 +527,59 @@ class FloodModel:
         plt.tight_layout()
         plt.show()
 
+
+    def diagnose_hand(self, r, c, max_trace=200):
+        """
+        Trace the D8 path from pixel (r,c) to its assigned channel.
+        Prints every step so you can see where the chain breaks.
+        """
+        offsets = {
+            64:(-1,-1), 128:(-1,0), 1:(-1,1),
+            2:( 0, 1),   4:( 1,1), 8:( 1,0),
+            16:( 1,-1),  32:( 0,-1)
+        }
+        rows, cols = self.dem_filled.shape
+        print(f"\nTracing from ({r},{c}) elev={self.dem_filled[r,c]:.2f}m "
+            f"HAND={self.hand[r,c]:.2f}m acc={self.acc[r,c]:.1f}mm")
+
+        path = [(r, c)]
+        for step in range(max_trace):
+            cr, cc = path[-1]
+            d = int(self.fdir[cr, cc])
+            offset = offsets.get(d, None)
+
+            is_channel = self.acc[cr, cc] >= np.percentile(self.acc, 99)
+            print(f"  step {step:3d}: ({cr:4d},{cc:4d}) "
+                f"elev={self.dem_filled[cr,cc]:.2f}m "
+                f"fdir={d:4d} "
+                f"acc={self.acc[cr,cc]:.1f}mm "
+                f"{'← CHANNEL' if is_channel else ''}"
+                f"{'← SINK (fdir=-1)' if d == -1 else ''}"
+                f"{'← SINK (fdir=0)' if d == 0 else ''}")
+
+            if is_channel:
+                print(f"  → Reached channel at step {step}")
+                break
+            if offset is None:
+                print(f"  → CHAIN BROKEN at step {step} — fdir={d}, no downstream")
+                break
+
+            dr, dc = offset
+            nr, nc = cr + dr, cc + dc
+            if not (0 <= nr < rows and 0 <= nc < cols):
+                print(f"  → Hit boundary at step {step}")
+                break
+            path.append((nr, nc))
+        else:
+            print(f"  → Max trace depth reached ({max_trace}) — likely circular")
+
     # ------------------------------------------------------------------
     #  Runner
     # ------------------------------------------------------------------
 
     def run(self):
         self.load_dem()
+        self.preprocess_dem_urban(spike_threshold=5.0)
         self.prepare_dem()
         self.load_landuse()
         self.load_precip(duration_hr=24)
@@ -508,7 +615,7 @@ class FloodModel:
             self.save_tif()
             self.save_flood_depth_tif()
             self.save_hand_tif() if self.model == "HAND" else self.save_twi_tif()
-            #self.save_flood_map()
+            self.save_flood_map()
 
         if self.show_plots:
             if self.landuse_file:
