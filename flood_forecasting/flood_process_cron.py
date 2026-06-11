@@ -111,7 +111,7 @@ if __name__ == "__main__":
     from flood_modelling import FloodModel
 
     initialize_precipitation_map()
-
+    
     # --- RUN FLOOD MODELLING CALCULATIONS --------------------------------
     FLOOD_MODEL = FloodModel(
         dem_file        = tif_path("AWS_S3_DEM_KEY"),
@@ -119,7 +119,7 @@ if __name__ == "__main__":
         landuse_file    = tif_path("AWS_S3_LANDUSE_KEY"),
         model           = "HAND",
         mask_bow        = True,
-        acc_model       = "D8",
+        acc_model       = "DINF",
         use_saved_data  = True,
         cache_dir       = ROOT_PATH / ".flood_cache",
     )
