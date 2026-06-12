@@ -648,3 +648,47 @@ footer a:hover { color: var(--accent); }
 #hot-take-skill{
     border: 1px solid var(--line);
 }
+
+
+.ptag{
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+} 
+
+.ptag-personal{ background: #00770e; }
+.ptag-profesional{ background: orangered; }
+
+.project-card{
+    background: var(--void);
+    padding: 2rem;
+    transition: background 0.3s;
+    position: relative;
+}
+
+.project-card:hover { background: var(--void-surface); }
+
+.portfolio-img-preview{
+    width: 100%;
+    opacity: 50%;
+}
+
+.portfolio-img-preview:hover{
+    opacity: 80%;
+}
+
+.proj-title{
+    font-family: var(--mono);
+    font-size: 1.2rem;
+    font: bold;
+}
+
+.proj-desc{
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.15em;
+    line-height: 20px;
+    gap: 0.5rem;
+}

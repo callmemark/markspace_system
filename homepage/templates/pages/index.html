@@ -99,6 +99,26 @@
     </div>
 </div>
 
+<!-- ─── ASTRONOMY STATS BANNER ─── -->
+<div class="site-wrap">
+    <div class="astronomy-banner">
+        <div class="astro-stat">
+            <div class="astro-stat-value">3+ yrs</div>
+            <div class="astro-stat-label">Professional Experience</div>
+        </div>
+        <div class="astro-divider"></div>
+            <div class="astro-stat">
+            <div class="astro-stat-value">Developer</div>
+            <div class="astro-stat-label">Software Engineer</div>
+        </div>
+        <div class="astro-divider"></div>
+            <div class="astro-stat">
+            <div class="astro-stat-value">∞</div>
+            <div class="astro-stat-label">Problems solved</div>
+        </div>
+    </div>
+</div>
+
 <!-- ─── SKILLS ─── -->
 <div class="site-wrap">
     <section id="skills">
@@ -143,31 +163,13 @@
     </section>
 </div>
 
-<!-- ─── ASTRONOMY STATS BANNER ─── -->
-<div class="site-wrap">
-    <div class="astronomy-banner">
-        <div class="astro-stat">
-            <div class="astro-stat-value">3+ yrs</div>
-            <div class="astro-stat-label">Professional Experience</div>
-        </div>
-        <div class="astro-divider"></div>
-            <div class="astro-stat">
-            <div class="astro-stat-value">BS Astro</div>
-            <div class="astro-stat-label">Space Science Technology</div>
-        </div>
-        <div class="astro-divider"></div>
-            <div class="astro-stat">
-            <div class="astro-stat-value">∞</div>
-            <div class="astro-stat-label">Problems solved</div>
-        </div>
-    </div>
-</div>
+
 
 <!-- ─── EXPERIENCE ─── -->
 <div class="site-wrap">
     <section id="experience">
         <div class="section-header">
-            <span class="section-tag">Mission Log</span>
+            <span class="section-tag">Experience</span>
             <div class="section-line"></div>
             <span class="section-num">02</span>
         </div>
@@ -201,13 +203,119 @@
     </section>
 </div>
 
+
+<!-- ─── Fortfolio ─── -->
+<div class="site-wrap">
+    <section id="portfolio">
+        <div class="section-header">
+            <span class="section-tag">Projects</span>
+            <div class="section-line"></div>
+            <span class="section-num">03</span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <img class="portfolio-img-preview" src="{% static 'img/flood_forecast_image.png' %}">
+            </div>
+
+            <div class="col-md-6 project-card d-flex flex-column align-items-start justify-content-between">
+                <div>
+                    <p class="proj-title">Flood Forecasting (Ongoing Developemt)</p>
+                    {% include 'partials/ptag_personal.html' %}
+                </div>
+
+                <p class="proj-desc">
+                    A indevelopement project currently in Apha state aims to provide as close as 15 minutes early 
+                    flood depth forecast Currently focused on Metro Manila. Computed using models without running full fluid
+                    simulation to provide forecast with near accurate comparable to simulations.
+                </p>
+                <a href="https://flood-forecaster.pages.dev/live-map" class="btn-primary">View Live →</a>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 100px;">
+            <div class="col-md-6 project-card d-flex flex-column align-items-start justify-content-between">
+                <div>
+                    <p class="proj-title">API Weather (Legacy)</p>
+                    {% include 'partials/ptag_personal.html' %}
+                </div>
+                <p class="proj-desc">
+                    API Weather is a old project of mine that simulates a weather data provider by providing Rest APIs to
+                    registered users. It is a SPA web application written with React-JS Library. Users can 
+                    create accounts, select account tiers, Create API keys, Integrate app API to other application.  
+                </p>
+                <a href="https://apiweather.pages.dev/" class="btn-primary">View Live →</a>
+            </div>
+
+            <div class="col-md-6">
+                <img class="portfolio-img-preview" src="{% static 'img/api_weather.png' %}">
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 100px;">
+            <div class="col-md-6">
+                <img class="portfolio-img-preview" src="{% static 'img/iam_system.png' %}">
+            </div>
+
+            <div class="col-md-6 project-card d-flex flex-column align-items-start justify-content-between">
+                <div>
+                    <p class="proj-title">IAM System - Poject Tangerine (In Developemt)</p>
+                    {% include 'partials/ptag_personal.html' %}
+                </div>
+
+                <p class="proj-desc">
+                    A uninfied account system to provide an easy access to any of my applications by using just one account. This is to benefit users that are interested to check my work without needing to use their real personnal accounts to login on my system. Tangerine dashboard will enable users to manage applications that registered using their Tangerine account.
+                </p>
+                <span  class="btn-primary" disabled>Not Yet Deployed</span>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 100px;">
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <h3>ERP - Enterprise Resource Planning Platform</h3>
+                    {% include 'partials/ptag_professinal.html' %}
+                    <p class="pt-5">A collaborative development, I mainly handle human resouce information system, POS, and Invoice modules</p>
+                </div>
+                <div class="skill-card">
+                    <h3>Religious Community Portal</h3>
+                    {% include 'partials/ptag_professinal.html' %}
+                    <p class="pt-5">A solo project to develop and maintain a community based portal where followers of the chuch will 
+                        be able to interact and ask relevant questions, read articles, and view historical events of the church. This was developed for a catholic church located on Kuwait.
+                    </p>
+                </div>
+                <div class="skill-card">
+                    <h3>School Management system</h3>
+                    {% include 'partials/ptag_professinal.html' %}
+                    <p class="pt-5">A collaborative work to develop a system to manage school schedules, Students, teacher, Curriculums and other related school operations</p>
+                </div>
+                <div class="skill-card">
+                    <h3>Barangay Management System</h3>
+                    {% include 'partials/ptag_professinal.html' %}
+                    <p class="pt-5">A collaborative project to develop a system for "barangays" in the Philippines to manage barangay related affairs such as blotters, Updates, and Alerts. A system to expadite process of IDs and other barangay related forms</p>
+                </div>
+                <div class="skill-card">
+                    <h3>TMS - Ticketing Management System</h3>
+                    {% include 'partials/ptag_professinal.html' %}
+                    <p class="pt-5">A solo development project to develop a Saas software that is customizable for clients need</p>
+                </div>
+                <div class="skill-card">
+                    <h3>HMS - Hotel Management System</h3>
+                    {% include 'partials/ptag_professinal.html' %}
+                    <p class="pt-5">A solo development project to develop a Saas software that is customizable for clients need</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
 <!-- ─── APPROACH ─── -->
 <div class="site-wrap">
     <section id="approach">
         <div class="section-header">
-        <span class="section-tag">Approach</span>
-        <div class="section-line"></div>
-        <span class="section-num">03</span>
+            <span class="section-tag">Approach</span>
+            <div class="section-line"></div>
+            <span class="section-num">04</span>
         </div>
 
         <div class="approach-grid">
