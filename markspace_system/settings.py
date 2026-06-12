@@ -10,9 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-DEBUG = True
+DEBUG = False
 
-CSRF_TRUSTED_ORIGINS = ['https://iammark.space/']
+CSRF_TRUSTED_ORIGINS = ['https://iammark.space']
 
 ALLOWED_HOSTS = ["47.128.71.38", "127.0.0.1", "localhost", 'iammark.space', 'www.iammark.space', 'api.iammark.space']
 
