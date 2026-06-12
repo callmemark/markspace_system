@@ -1,0 +1,214 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Login</title>
+    <style>
+        /* ---------- Global Reset & Typography ---------- */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ffb700 0%, #fc4300 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---------- Main Card ---------- */
+        #login-container {
+            background: linear-gradient(135deg, #ffe2d7 0%, #ffeab7 100%);;
+            width: 380px;
+            max-width: 400px;
+            padding: 3rem 2.5rem;
+            border-radius: 1.25rem;
+            box-shadow:
+                0 20px 45px rgba(0, 0, 0, 0.06),
+                0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        /* ---------- Header ---------- */
+        #page-header {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fc4300;
+            margin-bottom: 1.75rem;
+            text-align: center;
+            letter-spacing: -0.3px;
+            border-bottom: 2px solid #fc4300;
+            padding-bottom: 10px;
+        }
+
+        /* ---------- Error Messages ---------- */
+        .err-msg-header {
+            background: #fff0f0;
+            border-left: 4px solid #e5484d;
+            color: #b91c1c;
+            padding: 0.8rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .err-msg {
+            color: #e5484d;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+            list-style: none;
+        }
+
+        /* ---------- Form Fields ---------- */
+        .field-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.4rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.75rem;
+            background: #fafbfc;
+            color: #1a202c;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input-field:focus {
+            border-color: #5b6af0;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(91, 106, 240, 0.15);
+        }
+
+        .input-field::placeholder {
+            color: #a0aec0;
+        }
+
+        /* ---------- Submit Button ---------- */
+        #submit-button {
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            background: linear-gradient(135deg, #fc4300 0%, #ffb700 100%);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            letter-spacing: 0.3px;
+            margin-top: 0.5rem;
+        }
+
+        #submit-button:hover {
+            background: linear-gradient(135deg, #fc4300 0%, #fc4300 100%);
+            box-shadow: 0 8px 18px rgba(26, 31, 43, 0.15);
+            
+        }
+
+        #submit-button:active {
+            transform: scale(0.98);
+            background: #11151c;
+        }
+
+        #submit-button:focus-visible {
+            outline: 2px solid #5b6af0;
+            outline-offset: 2px;
+        }
+
+        .mini-text{
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        /* ---------- Responsive Adjustments ---------- */
+        @media (max-width: 480px) {
+            #login-container {
+                padding: 2.25rem 1.75rem;
+            }
+            #page-header {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="page">
+        <div id="login-container">
+            <h1 id="page-header">Admin Panel</h1>
+            
+            
+            {% if form.errors and not form.none_field_errors %}
+                <p class="err-msg-header">Please correct the errors below.</p>
+            {% endif %}
+
+            {% if form.none_field_errors %}
+                {% for error in form.none_field_errors %}
+                    <p class="err-msg">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <form action="{{ app_path }}" method="POST">
+                {% csrf_token %}
+
+                <div class="field-container">
+                    <label for="id-username" class="field-label">Email</label>
+                    <input
+                        type="email"
+                        class="input-field"
+                        name="username"
+                        id="id-username"
+                        placeholder="Enter your email"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="field-container">
+                    <label for="id-password" class="field-label">Password</label>
+                    <input
+                        type="password"
+                        class="input-field"
+                        name="password"
+                        id="id-password"
+                        placeholder="••••••••"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <input type="hidden" name="next" value="{{ next }}">
+                </div>
+
+                <div class="field-container">
+                    <button type="submit" id="submit-button">Log In</button>
+                </div>
+                <p class="mini-text">All operations (including IP access) are logged. <br> Suspicious attempts will be blacklisted to the domain</p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
