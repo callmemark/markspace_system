@@ -23,6 +23,27 @@ class Account(AbstractBaseUser, PermissionsMixin):
     """
     Represents an individual user. No longer mixed with Organizations.
     """
+
+    ACCOUNT_TYPES = [
+        ('personal', 'Personal'),
+        ('professional', 'Professional'),
+        ('developer', 'Developer'),
+    ]
+    account_type = models.CharField(
+        max_length=20, choices=ACCOUNT_TYPES, default='personal', db_index=True
+    )
+
+    # Professional extras
+    company = models.CharField(max_length=255, blank=True, null=True)
+    job_title = models.CharField(max_length=255, blank=True, null=True)
+
+    # Developer extras (used during sign‑up and editable in settings)
+    website = models.URLField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    # Optional avatar
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True, db_index=True)
     display_name = models.CharField(max_length=255)
@@ -165,3 +186,103 @@ class ApiKey(models.Model):
 
     def __str__(self):
         return f"Key {self.prefix}..."
+
+
+
+class EmailMessage(models.Model):
+    reply_to = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
+
+    trashed_by = models.ManyToManyField(
+        'Account',
+        related_name='trashed_emails',
+        blank=True
+    )
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sender = models.ForeignKey(
+        Account, on_delete=models.CASCADE, related_name='sent_emails'
+    )
+    recipients = models.ManyToManyField(
+        Account, related_name='received_emails'
+    )
+    cc = models.ManyToManyField(
+        Account, related_name='cc_emails', blank=True
+    )
+    subject = models.CharField(max_length=255)
+    body = models.TextField()
+    sent_at = models.DateTimeField(default=timezone.now)
+    has_attachment = models.BooleanField(default=False)
+
+    # Per‑recipient state
+    read_by = models.ManyToManyField(
+        Account, related_name='read_emails', blank=True
+    )
+    starred_by = models.ManyToManyField(
+        Account, related_name='starred_emails', blank=True
+    )
+
+    class Meta:
+        db_table = 'iam_email_message'
+        ordering = ['-sent_at']
+
+
+
+def generate_client_id():
+    return uuid.uuid4().hex[:16]
+
+class Application(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(
+        Account, on_delete=models.CASCADE, related_name='applications'
+    )
+    name = models.CharField(max_length=255)
+    # Only one client_id field — no lambda
+    client_id = models.CharField(
+        max_length=32,
+        unique=True,
+        default=generate_client_id,
+        db_index=True
+    )
+    description = models.TextField(blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'iam_application'
+
+
+def generate_token():
+    return uuid.uuid4().hex
+
+class AppApiToken(models.Model):
+    PERMISSION_CHOICES = [
+        ('read', 'Read'),
+        ('write', 'Write'),
+        ('admin', 'Admin'),
+    ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, related_name='api_tokens'
+    )
+    name = models.CharField(max_length=255)
+    token = models.CharField(
+        max_length=64,
+        unique=True,
+        default=generate_token
+    ) # Show once, store as‑is (or hash it)
+    permissions = models.CharField(
+        max_length=20, choices=PERMISSION_CHOICES, default='read'
+    )
+    is_active = models.BooleanField(default=True)
+    expires_at = models.DateTimeField(blank=True, null=True)
+    last_used_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'iam_app_api_token'
