@@ -203,6 +203,14 @@ class EmailMessage(models.Model):
         related_name='trashed_emails',
         blank=True
     )
+
+    invitation = models.ForeignKey(
+        'Invitation',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='email_messages'
+    )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sender = models.ForeignKey(
@@ -241,6 +249,15 @@ class Application(models.Model):
     owner = models.ForeignKey(
         Account, on_delete=models.CASCADE, related_name='applications'
     )
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='applications'
+    )
+    
     name = models.CharField(max_length=255)
     # Only one client_id field — no lambda
     client_id = models.CharField(
@@ -286,3 +303,23 @@ class AppApiToken(models.Model):
 
     class Meta:
         db_table = 'iam_app_api_token'
+
+
+class Invitation(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+    ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='invitations')
+    inviter = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='sent_invitations')
+    invitee_email = models.EmailField(db_index=True)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True)
+    role = models.CharField(max_length=20, choices=Membership.Role.choices, default=Membership.Role.MEMBER)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    accepted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'iam_invitation'

@@ -21,7 +21,13 @@ from .views import (
     SentListView,
     TrashEmailView,
     ChangePasswordView,
-    DeleteAccountView
+    DeleteAccountView,
+    SendInvitationView,
+    InvitationDetailView,
+    AcceptInvitationView,
+    DeclineInvitationView,
+    DevInvitationListView,
+    InvitationDeleteView
 )
 
 urlpatterns = [
@@ -46,8 +52,20 @@ urlpatterns = [
     path('api/email/<uuid:pk>/trash/', TrashEmailView.as_view(), name='email-trash'),
     
 
+    path('api/dev/team/', DevTeamMemberListCreateView.as_view(), name='team-list-create'),
+    path('api/dev/team/<uuid:pk>/', DevTeamMemberUpdateDestroyView.as_view(), name='team-detail'),
+
     path('api/auth/change-password/', ChangePasswordView.as_view(), name='change-password'),
     path('api/auth/me/delete/', DeleteAccountView.as_view(), name='delete-account'),
+
+    path('api/dev/invitations/', SendInvitationView.as_view(), name='send-invitation'),
+    path('api/invitations/<uuid:token>/', InvitationDetailView.as_view(), name='invitation-detail'),
+    path('api/invitations/<uuid:token>/accept/', AcceptInvitationView.as_view(), name='invitation-accept'),
+    path('api/invitations/<uuid:token>/decline/', DeclineInvitationView.as_view(), name='invitation-decline'),
+
+    path('api/dev/invitations/list/', DevInvitationListView.as_view(), name='dev-invitation-list'),
+    path('api/dev/invitations/<uuid:pk>/', InvitationDeleteView.as_view(), name='delete-invitation'),
+
 
     # -------------------- Developer – Applications --------------------
     path('api/dev/apps/', ApplicationListCreateView.as_view(), name='app-list-create'),

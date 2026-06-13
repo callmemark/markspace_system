@@ -5,7 +5,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
-from .models import Application, AppApiToken, Membership, EmailMessage
+from .models import Application, AppApiToken, Membership, EmailMessage, Organization, Invitation
 
 User = get_user_model()
 
@@ -46,6 +46,7 @@ class AccountRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"password": "Password fields didn't match."})
         return attrs
 
+
     def create(self, validated_data):
         validated_data.pop('password2')
         # Extract non-account fields that are passed to create_user
@@ -53,7 +54,30 @@ class AccountRegistrationSerializer(serializers.ModelSerializer):
         for field in ['company', 'job_title', 'website', 'description', 'account_type']:
             if field in validated_data:
                 extra_fields[field] = validated_data.pop(field)
+
         user = User.objects.create_user(**validated_data, **extra_fields)
+
+        # If developer, create a default Organization and make the user owner
+        if extra_fields.get('account_type') == 'developer':
+            # Generate a unique slug from email or display name
+            base_slug = user.email.split('@')[0].lower()
+            slug = base_slug
+            counter = 1
+            while Organization.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            org = Organization.objects.create(
+                legal_name=f"{user.display_name}'s Workspace",
+                slug=slug,
+                plan='free'
+            )
+            Membership.objects.create(
+                organization=org,
+                account=user,
+                role=Membership.Role.OWNER
+            )
+
         return user
 
 
@@ -83,18 +107,21 @@ class AccountSerializer(serializers.ModelSerializer):
 # ACCOUNT UPDATE (for the Account Settings page)
 # ----------------------------------------------------------------------
 class AccountUpdateSerializer(serializers.ModelSerializer):
+    membership_role = serializers.SerializerMethodField()
+
+    def get_membership_role(self, obj):
+        # A user can only belong to one organisation
+        membership = obj.memberships.first()
+        return membership.role if membership else None
+    
     class Meta:
         model = User
         fields = (
-            'display_name',
-            'company',
-            'job_title',
-            'website',
-            'description',
-            'avatar',
+            'id', 'email', 'display_name', 'account_type',
+            'company', 'job_title', 'website', 'description', 'avatar',
+            'is_active', 'date_joined', 'membership_role'
         )
-        # All fields are optional – only provided fields will be updated
-        extra_kwargs = {field: {'required': False} for field in fields}
+        read_only_fields = ('id', 'email', 'account_type', 'date_joined', 'is_active', 'membership_role')
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
@@ -166,7 +193,11 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 # serializers.py – updated EmailMessageSerializer
 class EmailMessageSerializer(serializers.ModelSerializer):
     sender = serializers.StringRelatedField(read_only=True)
-    sender_email = serializers.EmailField(source='sender.email', read_only=True)   # ← new field
+    sender_email = serializers.EmailField(source='sender.email', read_only=True)  
+
+    invitation_id = serializers.ReadOnlyField(source='invitation.id', allow_null=True)
+    invitation_token = serializers.ReadOnlyField(source='invitation.token', allow_null=True)
+    invitation_status = serializers.ReadOnlyField(source='invitation.status', allow_null=True)
 
     recipients = serializers.ListField(
         child=serializers.EmailField(), write_only=True, required=True
@@ -194,13 +225,17 @@ class EmailMessageSerializer(serializers.ModelSerializer):
             'recipients', 'cc', 'subject', 'body',
             'sent_at', 'has_attachment', 'is_read', 'is_starred',
             'recipients_detail', 'cc_detail',
-            'reply_to', 'reply_to_id',
+            'reply_to', 'reply_to_id', 'invitation_id',
+            'invitation_token',
+            'invitation_status',
         )
         read_only_fields = (
             'sender', 'sender_email', 'sent_at',    # ← added sender_email
             'is_read', 'is_starred',
             'recipients_detail', 'cc_detail',
-            'reply_to_id',
+            'reply_to_id', 'invitation_id',
+            'invitation_token',
+            'invitation_status',
         )
 
     def get_is_read(self, obj):
@@ -239,16 +274,69 @@ class ApplicationSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'client_id', 'created_at', 'owner')
 
 
-class AppApiTokenSerializer(serializers.ModelSerializer):
+class AppApiTokenListSerializer(serializers.ModelSerializer):
+    """Used for GET (list) – never exposes the full token."""
+    application_name = serializers.ReadOnlyField(source='application.name')
+    token_preview = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AppApiToken
+        fields = (
+            'id', 'name', 'token_preview', 'permissions', 'is_active',
+            'expires_at', 'last_used_at', 'created_at',
+            'application', 'application_name'
+        )
+        read_only_fields = ('last_used_at', 'created_at')
+
+    def get_token_preview(self, obj):
+        return f"••••{obj.token[-4:]}"
+
+
+class AppApiTokenCreateSerializer(serializers.ModelSerializer):
+    """Used for POST (create) – returns the full token once."""
     application_name = serializers.ReadOnlyField(source='application.name')
 
     class Meta:
         model = AppApiToken
-        fields = ('id', 'name', 'token', 'permissions', 'is_active',
+        fields = (
+            'id', 'name', 'token', 'permissions', 'is_active',
+            'expires_at', 'last_used_at', 'created_at',
+            'application', 'application_name'
+        )
+        read_only_fields = ('token', 'last_used_at', 'created_at')
+        extra_kwargs = {
+            'application': {'required': True},
+        }
+
+
+class AppApiTokenSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(read_only=True)
+    token_preview = serializers.SerializerMethodField()
+
+    def get_token_preview(self, obj):
+        return f"••••{obj.token[-4:]}"
+
+    class Meta:
+        model = AppApiToken
+        fields = ('id', 'name', 'token', 'token_preview', 'permissions', 'is_active',
                   'expires_at', 'last_used_at', 'created_at', 'application', 'application_name')
         read_only_fields = ('token', 'last_used_at', 'created_at')
         extra_kwargs = {
             'application': {'required': True},
+        }
+
+
+class AppApiTokenSerializer(serializers.ModelSerializer):
+    token_preview = serializers.SerializerMethodField(read_only=True)
+
+    def get_token_preview(self, obj):
+        return f"••••{obj.token[-4:]}"
+
+    class Meta:
+        model = AppApiToken
+        fields = ('id', 'name', 'token', 'token_preview', 'permissions', ...)
+        extra_kwargs = {
+            'token': {'write_only': True},   # full token only accepted on creation, never returned in responses
         }
 
 
@@ -257,12 +345,48 @@ class MembershipSerializer(serializers.ModelSerializer):
     account_name = serializers.ReadOnlyField(source='account.display_name')
     role = serializers.ChoiceField(choices=Membership.Role.choices)
 
+    # For inviting – accept email instead of account ID
+    email = serializers.EmailField(write_only=True, required=False)
+
     class Meta:
         model = Membership
-        fields = ('id', 'account_email', 'account_name', 'role', 'joined_at')
-        read_only_fields = ('joined_at',)
+        fields = ('id', 'account_email', 'account_name', 'role', 'joined_at', 'email')
+        read_only_fields = ('joined_at', 'account_email', 'account_name')
 
+    def validate(self, attrs):
+        if self.instance is None:  # creation
+            email = attrs.get('email')
+            if not email:
+                raise serializers.ValidationError({"email": "This field is required."})
+            try:
+                account = User.objects.get(email=email)
+            except User.DoesNotExist:
+                raise serializers.ValidationError({"email": "No account found with this email."})
+            # Check if already a member
+            org = self.context['organization']
+            if Membership.objects.filter(organization=org, account=account).exists():
+                raise serializers.ValidationError({"email": "User is already a member of this organization."})
+            self.context['account'] = account
+        return attrs
 
+    def validate_role(self, value):
+        request = self.context.get('request')
+        if not request:
+            return value
+        request_user_role = self.context.get('request_user_role')
+        # When creating or updating, admin cannot assign admin role
+        if request_user_role == 'admin' and value == 'admin':
+            raise serializers.ValidationError("Only the owner can assign the admin role.")
+        # Also prevent changing owner to anything else
+        if self.instance and self.instance.role == 'owner' and value != 'owner':
+            raise serializers.ValidationError("Cannot change the owner's role.")
+        return value
+
+    def create(self, validated_data):
+        validated_data.pop('email', None)
+        account = self.context['account']
+        org = self.context['organization']
+        return Membership.objects.create(organization=org, account=account, role=validated_data['role'])
 
 
 
@@ -275,3 +399,33 @@ class ChangePasswordSerializer(serializers.Serializer):
         if attrs['new_password'] != attrs['new_password2']:
             raise serializers.ValidationError({"new_password": "Passwords don't match."})
         return attrs
+
+
+
+# serializers.py
+class InvitationSerializer(serializers.ModelSerializer):
+    organization_name = serializers.ReadOnlyField(source='organization.legal_name')
+    inviter_email = serializers.ReadOnlyField(source='inviter.email')
+    # Accept 'email' from frontend, write to model's 'invitee_email'
+    email = serializers.EmailField(write_only=True, source='invitee_email')
+
+    class Meta:
+        model = Invitation
+        fields = (
+            'id', 'organization', 'inviter', 'organization_name', 'inviter_email',
+            'email', 'role', 'status', 'token', 'created_at'
+        )
+        read_only_fields = ('token', 'status', 'created_at', 'organization', 'inviter')
+
+    def validate_invitee_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("No account found with this email.")
+        if user.account_type != 'personal':
+            raise serializers.ValidationError("Only personal accounts can be invited.")
+        return value
+
+
+class InvitationAcceptSerializer(serializers.Serializer):
+    token = serializers.UUIDField()
