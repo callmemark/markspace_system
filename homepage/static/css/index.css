@@ -670,7 +670,7 @@ footer a:hover { color: var(--accent); }
 .project-card:hover { background: var(--void-surface); }
 
 .portfolio-img-preview{
-    width: 100%;
+    width: 80%;
     opacity: 50%;
 }
 

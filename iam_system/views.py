@@ -693,14 +693,38 @@ class DevTeamMemberUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         require_role(self.request.user, 'owner', 'admin')
-        # Additional validation for role changes is inside the serializer
         serializer.save()
 
     def perform_destroy(self, instance):
         membership = require_role(self.request.user, 'owner', 'admin')
-        # Owner cannot be removed, admin can only remove members (not admins/owner)
+        # Owner cannot be removed
         if instance.role == 'owner':
             raise PermissionDenied("Cannot remove the organisation owner.")
         if membership.role == 'admin' and instance.role in ('admin', 'owner'):
             raise PermissionDenied("You do not have permission to remove this member.")
+
+        account = instance.account
+
+        # If this is the account's only membership, revert to personal
+        if account.memberships.count() == 1:
+            account.account_type = 'personal'
+            account.save()
+
+            # Send internal Tangerine email notification
+            try:
+                email = EmailMessage.objects.create(
+                    sender=self.request.user,
+                    subject="Team access removed",
+                    body=(
+                        f"Hello {account.display_name},\n\n"
+                        "Your team access has been removed. "
+                        "Your account is now a personal Tangerine account.\n\n"
+                        "Best regards,\nTangerine System"
+                    ),
+                )
+                email.recipients.add(account)
+            except Exception:
+                pass  
+
+        # Delete the membership
         instance.delete()
