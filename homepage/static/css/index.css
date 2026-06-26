@@ -479,19 +479,19 @@ body::before {
 }
 
 .petal:nth-child(odd) {
-    background: #f0cfd3;
+    background: #fdc89d;
     width: 13px;
     height: 18px;
 }
 
 .petal:nth-child(3n) {
-    background: #fadadd;
+    background: #ee8d5f;
     width: 18px;
     height: 24px;
 }
 
 .petal:nth-child(5n) {
-    background: #e8c4c8;
+    background: #df997c;
     width: 11px;
     height: 16px;
 }
