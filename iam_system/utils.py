@@ -1,30 +1,47 @@
-# utils.py
-from django.core.mail import send_mail
-from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
-from django.conf import settings
-
-signer = TimestampSigner()
+from .models import AuthRecord, Account, Application
 
 
-def generate_verification_token(account):
-    return signer.sign(str(account.id))
+def update_auth_activity_record(user: Account, application: Application, **fields):
+    """
+    Create or update an AuthRecord for the given user + application.
 
+    Accepted keyword arguments:
+        last_login          - datetime (usually now)
+        last_ip             - str
+        last_user_agent     - str
+        last_token_refresh  - datetime
+        last_change_password- datetime
+        is_active           - bool
 
-def verify_token(token, max_age=86400): 
-    try:
-        account_id = signer.unsign(token, max_age=max_age)
-        return account_id
-    except (BadSignature, SignatureExpired):
-        return None
-
-
-def send_verification_email(account):
-    token = generate_verification_token(account)
-    verification_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"  # frontend handles finalization
-    send_mail(
-        'Verify your email address',
-        f'Click the link to verify your account: {verification_url}',
-        settings.DEFAULT_FROM_EMAIL,
-        [account.email],
-        fail_silently=False,
+    Automatically handles:
+        - first_login (set once on creation)
+        - login_count incremented when last_login is provided
+        - updated_at (auto field)
+    """
+    record, created = AuthRecord.objects.get_or_create(
+        user=user,
+        application=application,
+        defaults={
+            'first_login': fields.get('last_login', timezone.now()),
+            'login_count': 1,
+            **{k: v for k, v in fields.items() if k in [
+                'last_ip', 'last_user_agent', 'last_token_refresh',
+                'last_change_password', 'is_active'
+            ]}
+        }
     )
+
+    if not created:
+        # Update only provided fields
+        for field in ['last_ip', 'last_user_agent', 'last_token_refresh',
+                      'last_change_password', 'is_active']:
+            if field in fields:
+                setattr(record, field, fields[field])
+
+        if 'last_login' in fields:
+            record.last_login = fields['last_login']
+            record.login_count += 1
+
+        record.save(update_fields=[f for f in fields.keys() if hasattr(record, f)] + ['login_count'])
+
+    return record

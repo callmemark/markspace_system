@@ -11,6 +11,8 @@ from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied
 
+from .utils import update_auth_activity_record
+
 from .serializers import (
     AccountRegistrationSerializer,
     AccountSerializer,
@@ -70,6 +72,26 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        
+        if response.status_code == 200:
+            client_id = request.data.get('client_id')   # optional field
+            if client_id:
+                try:
+                    app = Application.objects.get(client_id=client_id)
+                    update_auth_activity_record(
+                        user=request.user,
+                        application=app,
+                        last_login=timezone.now(),
+                        last_ip=request.META.get('REMOTE_ADDR'),
+                        last_user_agent=request.META.get('HTTP_USER_AGENT'),
+                    )
+                except Application.DoesNotExist:
+                    pass
+
+        return response
 
 
 class TokenRefreshView(TokenRefreshView):

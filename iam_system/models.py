@@ -323,3 +323,32 @@ class Invitation(models.Model):
 
     class Meta:
         db_table = 'iam_invitation'
+
+
+
+class AuthRecord(models.Model):
+    user = models.ForeignKey(
+        Account, on_delete=models.CASCADE, related_name='auth_records'
+    )
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, related_name='auth_records'
+    )
+    
+    first_login = models.DateTimeField(auto_now_add=True)               
+    last_login = models.DateTimeField(null=True, blank=True)
+    login_count = models.PositiveIntegerField(default=1)                
+    last_change_password = models.DateTimeField(null=True, blank=True)
+    last_ip = models.GenericIPAddressField(null=True, blank=True)
+    last_user_agent = models.CharField(max_length=255, blank=True, null=True)
+    last_token_refresh = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'iam_auth_record'
+        unique_together = ('user', 'application')
+        indexes = [
+            models.Index(fields=['application', 'last_login']),
+            models.Index(fields=['application', 'is_active']),
+        ]
