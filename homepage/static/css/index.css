@@ -85,6 +85,35 @@ body::before {
     background-size: 256px 256px;
 }
 
+
+body {
+  --sb-track-color: #d4d1ca;
+  --sb-thumb-color: #2c3e6b;
+  --sb-size: 12px;
+}
+
+body::-webkit-scrollbar {
+  width: var(--sb-size)
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+  border-radius: 8px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 8px;
+  
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  body {
+    scrollbar-color: var(--sb-thumb-color)
+                     var(--sb-track-color);
+  }
+}
+
 /* Selection styling */
 ::selection {
     background-color: var(--sakura-pink-light);
@@ -1345,3 +1374,4 @@ section {
         animation-duration: 10s !important;
     }
 }
+

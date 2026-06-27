@@ -12,3 +12,6 @@ db.sqlite3
 flood_forecasting/.flood_cache
 flood_forecasting/flood_model_output
 flood_forecasting/inputs
+media
+homepage/migrations
+homepage/migrations/__pycache__
