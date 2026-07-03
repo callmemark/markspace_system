@@ -297,7 +297,7 @@
     // CONSOLE EASTER EGG
     // ─────────────────────────────────────
     console.log(
-        '%c 禅 %c Welcome to Yuki Tanaka\'s Portfolio %c 禅 ',
+        '%c 禅 %c Welcome to Mark John Velmonte\'s Portfolio %c 禅 ',
         'font-size:1.2em; color:#2c3e6b;',
         'font-size:1em; color:#5a5a5a; font-family:serif;',
         'font-size:1.2em; color:#c44545;'
